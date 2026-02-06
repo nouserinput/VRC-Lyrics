@@ -1,5 +1,6 @@
 import spotipy
 from . import BasePlayback
+import requests
 
 redirect_uri = "http://127.0.0.1:5000/callback"
 scope = "user-read-playback-state"
@@ -15,7 +16,13 @@ class SpotifyPlayback(BasePlayback):
         self._last_id = None
 
     def fetch_playback(self):
-        data = self.spotify.current_playback()
+        try:
+            data = self.spotify.current_playback()
+        except requests.exceptions.ConnectionError:
+            try:
+                data = self.spotify.current_playback()
+            except Exception:
+                data = None
         if not data or not data['item']:
             return False
 
